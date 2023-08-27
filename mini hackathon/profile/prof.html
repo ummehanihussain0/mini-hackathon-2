@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile Settings</title>
+   <link rel="stylesheet" href="./prof css/prof.css">
+</head>
+<body>
+    <div id="main-container">
+        <div id="logo">
+            <p> <a href="../dashboard/dashboard.html">Personal Blogging App</a> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <button onclick="logout()" id="butt">Log out</button>
+            </p>
+        </div>
+    </div>
+    <div id="profile-container">
+        <h2>Profile Settings</h2>
+        <img src="../image/prof.png">
+        <div>
+            <h3>Update Profile Photo</h3>
+            <input type="file" id="profilePhotoInput">
+            <button onclick="updateProfilePhoto()">Update Photo</button>
+        </div>
+        <div>
+            <h3>Edit Username</h3>
+            <input type="text" placeholder="New Username" id="newUsername">
+            <button onclick="editUsername()">Edit Username</button>
+        </div>
+        <div>
+            <h3>Change Password</h3>
+            <input type="password" placeholder="Current Password" id="currentPassword">
+            <input type="password" placeholder="New Password" id="newPassword">
+            <button onclick="changePassword()">Change Password</button>
+        </div>
+       
+    </div>
+    <script src="https://www.gstatic.com/firebasejs/8.7.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.7.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.7.1/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.7.1/firebase-storage.js"></script>
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyAf2smZBKLerNAB5wxWi-ysBAF3yuDJQ-g",
+  authDomain: "hani0-fa553.firebaseapp.com",
+  databaseURL: "https://hani0-fa553-default-rtdb.firebaseio.com",
+  projectId: "hani0-fa553",
+  storageBucket: "hani0-fa553.appspot.com",
+  messagingSenderId: "203751539987",
+  appId: "1:203751539987:web:e1bc4484219ff6630e86e6",
+  measurementId: "G-Q5N3QMPRW2"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+
+        const auth = firebase.auth();
+        const storage = firebase.storage();
+
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                // User is signed in
+                console.log("User is signed in:", user.uid);
+            } else {
+                console.log("User is signed out");
+                alert("User is signed out");
+                window.location.href='../sign up/signup.html';
+            }
+        });
+
+        function logout() {
+            auth.signOut();
+        }
+
+        function updateProfilePhoto() {
+            const user = auth.currentUser;
+            const profilePhotoInput = document.getElementById("profilePhotoInput");
+
+            if (user && profilePhotoInput.files.length > 0) {
+                const file = profilePhotoInput.files[0];
+                const storageRef = storage.ref().child(`profile_photos/${user.uid}/${file.name}`);
+
+                storageRef.put(file)
+                    .then(snapshot => snapshot.ref.getDownloadURL())
+                    .then(downloadURL => {
+                        user.updateProfile({
+                            photoURL: downloadURL
+                        }).then(() => {
+                            console.log("Profile photo updated successfully");
+                        }).catch(error => {
+                            console.error("Error updating profile photo: ", error);
+                        });
+                    })
+                    .catch(error => {
+                        console.error("Error uploading profile photo: ", error);
+                    });
+            }
+        }
+
+        function changePassword() {
+            const user = auth.currentUser;
+            const currentPassword = document.getElementById("currentPassword").value;
+            const newPassword = document.getElementById("newPassword").value;
+
+            const credentials = firebase.auth.EmailAuthProvider.credential(user.email, currentPassword);
+
+            user.reauthenticateWithCredential(credentials)
+                .then(() => {
+                    user.updatePassword(newPassword)
+                        .then(() => {
+                            console.log("Password updated successfully");
+                        })
+                        .catch(error => {
+                            console.error("Error updating password: ", error);
+                        });
+                })
+                .catch(error => {
+                    console.error("Error reauthenticating user: ", error);
+                });
+        }
+
+        function editUsername() {
+            const user = auth.currentUser;
+            const newUsername = document.getElementById("newUsername").value;
+
+            if (user) {
+                user.updateProfile({
+                    displayName: newUsername
+                }).then(() => {
+                    console.log("Username updated successfully");
+                }).catch(error => {
+                    console.error("Error updating username: ", error);
+                });
+            }
+        }
+    </script>
+</body>
+</html>

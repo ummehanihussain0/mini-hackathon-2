@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog</title>
+</head>
+<link rel="stylesheet" href="./sign in css/signin.css">
+<body>
+    <div id="para"><p><a href="../dashboard/dashboard.html"> Personal Blogging App</a>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <a href="../sign up/signup.html">Sign Up</a></p></div>
+ 
+<div id="second-container">
+     <h1>Log in</h1>
+</div>
+<form id="signinForm">
+    <div id="main-container">
+    <div>
+         <input type="email" placeholder="Enter your email" id="email" required>
+    </div>
+    <div>
+         <input type="password" placeholder="Enter your password" id="password" required>
+    </div>
+
+<br />
+   <div class="signupBtn" ><input type="submit" id="btnn" value="Sign In"></div>
+    </div>
+</form>
+    <script src="https://www.gstatic.com/firebasejs/8.7.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.7.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.7.1/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.7.1/firebase-storage.js"></script>
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyAf2smZBKLerNAB5wxWi-ysBAF3yuDJQ-g",
+  authDomain: "hani0-fa553.firebaseapp.com",
+  databaseURL: "https://hani0-fa553-default-rtdb.firebaseio.com",
+  projectId: "hani0-fa553",
+  storageBucket: "hani0-fa553.appspot.com",
+  messagingSenderId: "203751539987",
+  appId: "1:203751539987:web:e1bc4484219ff6630e86e6",
+  measurementId: "G-Q5N3QMPRW2"
+        };
+        
+        const app = firebase.initializeApp(firebaseConfig);
+
+        const signinForm = document.getElementById('signinForm');
+        signinForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            try {
+                const userCredential = await firebase.auth().signInWithEmailAndPassword(email, password);
+
+                // Sign-in successful
+                const user = userCredential.user;
+                console.log('User signed in successfully.');
+
+                // Redirect to choose.html
+                window.location.href = '../dashboard/dashboard.html';
+            } catch (error) {
+                const errorCode = error.code;
+                const errorMessage = error.message;
+                console.error(errorCode + ': ' + errorMessage);
+
+                if (errorCode === 'auth/user-not-found') {
+                    console.log('Email not registered. Please register.');
+                } else {
+                    // Handle other sign-in errors if needed
+                }
+            }
+        });
+</script>
+</body>
+</html>
